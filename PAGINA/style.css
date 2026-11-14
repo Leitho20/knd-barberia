@@ -1,0 +1,439 @@
+:root {
+    --negro: #111111;
+    --negro-oscuro: #090909;
+    --amarillo-logo: #f2c230;
+    --amarillo-profundo: #d5a719;
+    --rojo-logo: #d90b1c;
+    --gris-claro: #f4f4f4;
+    --gris-medio: #d9d9d9;
+    --blanco: #ffffff;
+    --texto: #242424;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--gris-claro);
+    color: var(--texto);
+    line-height: 1.6;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 12px max(24px, calc((100% - 1120px) / 2));
+    background: var(--negro-oscuro);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.logo img {
+    display: block;
+    width: 96px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.menu ul {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex-wrap: wrap;
+    list-style: none;
+}
+
+.menu a {
+    color: var(--blanco);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.menu a:hover {
+    color: var(--amarillo-logo);
+}
+
+.menu .menu-contacto {
+    padding: 10px 16px;
+    border: 1px solid var(--amarillo-logo);
+    border-radius: 999px;
+}
+
+.menu .menu-instagram {
+    color: var(--amarillo-logo);
+}
+
+.menu .menu-instagram:hover {
+    color: var(--blanco);
+}
+
+.menu .menu-contacto:hover {
+    background: var(--amarillo-logo);
+    color: var(--negro);
+}
+
+.main {
+    max-width: 1120px;
+    margin: 36px auto 60px;
+    padding: 0 24px;
+}
+
+.bienvenida {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 380px;
+    overflow: hidden;
+    padding: clamp(32px, 7vw, 76px);
+    border-radius: 20px;
+    background:
+        radial-gradient(ellipse at 82% 50%, rgba(242, 194, 48, 0.2), transparent 36%),
+        linear-gradient(120deg, var(--negro-oscuro) 0%, #222222 100%);
+    color: var(--blanco);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+}
+
+.bienvenida-contenido {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+}
+
+.eyebrow {
+    margin-bottom: 12px;
+    color: var(--amarillo-logo);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.bienvenida h1 {
+    margin-bottom: 14px;
+    color: var(--blanco);
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: 2px;
+}
+
+.bienvenida-contenido > p:not(.eyebrow) {
+    max-width: 500px;
+    margin-bottom: 28px;
+    color: #e3e3e3;
+    font-size: 1.1rem;
+}
+
+.boton-principal {
+    display: inline-block;
+    padding: 14px 22px;
+    border-radius: 6px;
+    background: var(--amarillo-logo);
+    color: var(--negro);
+    font-weight: 800;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.boton-principal:hover {
+    transform: translateY(-2px);
+    background: var(--amarillo-profundo);
+    color: var(--negro);
+}
+
+.bienvenida-marca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 260px;
+    height: 260px;
+    margin-left: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    color: var(--amarillo-logo);
+    transform: rotate(-8deg);
+}
+
+.bienvenida-marca span:first-child {
+    font-size: 5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.bienvenida-marca span:last-child {
+    color: var(--blanco);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+}
+
+.servicios {
+    padding: 70px 0 30px;
+}
+
+.encabezado-seccion {
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.encabezado-seccion .eyebrow {
+    margin-bottom: 4px;
+}
+
+.encabezado-seccion h2,
+.panel h2 {
+    margin-bottom: 8px;
+    color: var(--negro);
+    font-size: clamp(1.7rem, 4vw, 2.3rem);
+}
+
+.servicios-lista {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.servicio-item {
+    display: block;
+    min-height: 190px;
+    padding: 26px;
+    border: 1px solid #e4e4e4;
+    border-top: 4px solid var(--amarillo-logo);
+    border-radius: 12px;
+    background: var(--blanco);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.servicio-item:hover,
+.servicio-item:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+}
+
+.servicio-item:focus-visible {
+    outline: 3px solid var(--rojo-logo);
+    outline-offset: 3px;
+}
+
+.servicio-numero {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--rojo-logo);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.servicio-item h3 {
+    margin-bottom: 8px;
+    color: var(--negro);
+}
+
+.servicio-item p {
+    color: #5b5b5b;
+}
+
+.servicio-item .servicio-precio {
+    margin-top: 12px;
+    color: var(--rojo-logo);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.precios {
+    padding: 48px 0 56px;
+}
+
+.precios-imagen {
+    max-width: 480px;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid var(--gris-medio);
+    border-radius: 14px;
+    background: var(--negro);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+}
+
+.precios-imagen img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.panel {
+    margin-bottom: 24px;
+    padding: 30px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    border-radius: 16px;
+    background: var(--blanco);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+}
+
+.horarios table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+}
+
+.horarios th,
+.horarios td {
+    padding: 12px 14px;
+    border: 1px solid var(--gris-medio);
+    text-align: left;
+}
+
+.horarios th {
+    background: var(--gris-claro);
+    color: var(--negro);
+}
+
+.sucursales {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.sucursales > h2 {
+    grid-column: 1 / -1;
+}
+
+.sucursal-item {
+    padding: 20px;
+    border: 1px solid var(--gris-medio);
+    border-left: 4px solid var(--amarillo-logo);
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.sucursal-item h3 {
+    margin-bottom: 6px;
+    color: var(--negro);
+}
+
+.enlace-maps {
+    display: inline-flex;
+    flex-direction: column;
+    color: var(--texto);
+    text-decoration: none;
+}
+
+.enlace-maps span {
+    margin-top: 6px;
+    color: var(--amarillo-profundo);
+    font-weight: 800;
+}
+
+.enlace-maps:hover span,
+.enlace-maps:focus-visible span {
+    color: var(--rojo-logo);
+    text-decoration: underline;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px max(24px, calc((100% - 1120px) / 2));
+    background: var(--negro-oscuro);
+    color: var(--blanco);
+}
+
+.footer p {
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.footer-contacto {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+}
+
+.footer-contacto a {
+    color: var(--blanco);
+    font-weight: 700;
+    text-decoration-color: var(--amarillo-logo);
+    text-underline-offset: 4px;
+}
+
+.footer-contacto a:hover {
+    color: var(--amarillo-logo);
+}
+
+@media (max-width: 760px) {
+    .header {
+        flex-direction: column;
+        padding: 14px 20px 20px;
+    }
+
+    .menu ul {
+        justify-content: center;
+        gap: 14px 20px;
+    }
+
+    .bienvenida {
+        min-height: 340px;
+    }
+
+    .bienvenida-marca {
+        position: absolute;
+        right: -80px;
+        bottom: -70px;
+        width: 230px;
+        height: 230px;
+        opacity: 0.2;
+    }
+
+    .servicios-lista {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .main {
+        margin-top: 20px;
+        padding: 0 16px;
+    }
+
+    .bienvenida {
+        padding: 34px 24px;
+    }
+
+    .boton-principal {
+        width: 100%;
+        text-align: center;
+    }
+
+    .panel {
+        padding: 22px 18px;
+    }
+
+    .sucursales {
+        grid-template-columns: 1fr;
+    }
+
+    .sucursales > h2 {
+        grid-column: auto;
+    }
+
+    .footer {
+        flex-direction: column;
+        text-align: center;
+    }
+}
