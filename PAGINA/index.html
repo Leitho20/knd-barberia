@@ -1,143 +1,1299 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-AR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KND BARBERIA</title>
-    <link rel="stylesheet" href="style.css">
+    <title>KND BARBERIA | Cortes, Estilo & Panel Admin</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuentes de Google: Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        barber: {
+                            dark: '#0f0f11',
+                            card: '#18181b',
+                            sidebar: '#131316',
+                            gold: '#d4af37',
+                            goldHover: '#e5c158',
+                            bronze: '#b48a3e',
+                            muted: '#a1a1aa'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <header class="header" id="inicio">
-        <div class="logo">
-            <a href="#inicio" aria-label="KND BARBERIA, inicio">
-                <img src="../IMG/KNDbarberia.jpg" alt="Logo de KND BARBERIA">
-            </a>
+<body class="bg-barber-dark text-zinc-100 font-sans antialiased selection:bg-barber-gold selection:text-black">
+
+    <!-- Notificación Toast Flotante (Reemplaza alert/confirm) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- =====================================================================
+         VISTA PÚBLICA DE LA BARBERÍA
+         ===================================================================== -->
+    <div id="public-view">
+        <!-- Barra Superior Móvil -->
+        <header class="lg:hidden sticky top-0 z-40 bg-barber-sidebar/95 backdrop-blur-md border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-lg bg-barber-gold/10 border border-barber-gold/40 flex items-center justify-center text-barber-gold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span id="mobile-brand-name" class="font-serif font-bold text-lg tracking-wide text-white block leading-none">KND BARBERIA</span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-barber-gold">Barber Studio</span>
+                </div>
+            </div>
+
+            <button id="mobile-menu-btn" aria-label="Abrir menú y ubicación" class="p-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-barber-gold border border-zinc-700 transition">
+                <svg id="menu-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <svg id="menu-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Fondo oscuro cuando se abre el panel lateral en móvil -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
+
+        <!-- CONTENEDOR PRINCIPAL (Sidebar Izquierdo + Contenido Derecho) -->
+        <div class="min-h-screen flex flex-col lg:flex-row">
+
+            <!-- =================================================================
+                 PANEL LATERAL IZQUIERDO (UBICACIÓN, HORARIOS Y REDES DIRECTAS)
+                 ================================================================= -->
+            <aside id="left-sidebar" class="fixed lg:sticky top-0 left-0 z-50 h-screen w-80 xl:w-96 bg-barber-sidebar border-r border-zinc-800/90 flex flex-col justify-between overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <div class="p-6 space-y-6">
+                    <!-- Logo y Marca -->
+                    <div class="text-center border-b border-zinc-800 pb-6">
+                        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-barber-gold/20 to-zinc-900 border border-barber-gold/50 flex items-center justify-center shadow-lg shadow-barber-gold/5">
+                            <svg class="w-8 h-8 text-barber-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
+                            </svg>
+                        </div>
+                        <h1 id="sidebar-brand-name" class="font-serif text-2xl font-bold tracking-wider text-white">KND BARBERIA</h1>
+                        <p class="text-xs uppercase tracking-[0.25em] text-barber-gold mt-1">Barbería & Grooming</p>
+                    </div>
+
+                    <!-- Navegación Rápida -->
+                    <nav aria-label="Navegación principal" class="space-y-1">
+                        <a href="#inicio" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
+                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                            Inicio
+                        </a>
+                        <a href="#promociones" id="nav-promos-link" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
+                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                            Promociones
+                        </a>
+                        <a href="#precios" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
+                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                            Lista de Precios
+                        </a>
+                        <a href="#ubicacion" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
+                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                            Dónde Estamos
+                        </a>
+                    </nav>
+
+                    <!-- Sucursales y horarios -->
+                    <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 rounded-lg bg-barber-gold/10 text-barber-gold shrink-0 mt-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div class="w-full">
+                                <h2 class="text-xs font-semibold uppercase tracking-wider text-barber-gold">Sucursales</h2>
+                                <a href="https://www.google.com/maps/search/?api=1&amp;query=Rio+Turbio+1121%2C+Florencio+Varela%2C+Buenos+Aires%2C+Argentina" target="_blank" rel="noopener noreferrer" class="block text-sm text-zinc-200 font-medium mt-2 hover:text-barber-gold transition">
+                                    Río Turbio 1121, Florencio Varela
+                                    <span class="block text-xs text-barber-gold mt-1">📍 Ver en Google Maps</span>
+                                </a>
+                                <a href="https://www.google.com/maps/search/?api=1&amp;query=General+Peron+1820%2C+Zeballos%2C+Buenos+Aires%2C+Argentina" target="_blank" rel="noopener noreferrer" class="block text-sm text-zinc-200 font-medium mt-3 hover:text-barber-gold transition">
+                                    General Perón 1820, Zeballos
+                                    <span class="block text-xs text-barber-gold mt-1">📍 Ver en Google Maps</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-zinc-800/80 pt-3 flex items-start gap-3">
+                            <div class="p-2 rounded-lg bg-barber-gold/10 text-barber-gold shrink-0 mt-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="w-full">
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-barber-gold">Horarios</h3>
+                                <ul id="sidebar-hours-list" class="text-xs text-zinc-300 space-y-1.5 mt-1.5">
+                                    <li class="flex justify-between gap-2"><span>Lun a Vie:</span> <span id="hours-weekdays" class="text-white font-medium text-right">10:00 - 20:30</span></li>
+                                    <li class="flex justify-between gap-2"><span>Sábados:</span> <span id="hours-saturday" class="text-white font-medium text-right">09:30 - 20:00</span></li>
+                                    <li class="flex justify-between gap-2 text-zinc-400"><span>Domingos:</span> <span id="hours-sunday" class="text-right">Cerrado</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ETIQUETAS DIRECTAS DE WHATSAPP E INSTAGRAM + ACCESO ADMIN -->
+                <div class="p-6 pt-3 space-y-3 border-t border-zinc-800/80 bg-barber-sidebar">
+                    <p class="text-[11px] uppercase tracking-widest text-zinc-400 text-center font-medium">Contacto Directo & Turnos</p>
+
+                    <a id="sidebar-wa-btn" href="https://wa.me/message/MIWPGUSA6FKRB1" target="_blank" rel="noopener noreferrer"
+                       class="group flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-950/50 transition-all duration-200 hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                        </svg>
+                        <span>WhatsApp Turnos</span>
+                    </a>
+
+                    <a id="sidebar-ig-btn" href="https://www.instagram.com/knd_barberia/" target="_blank" rel="noopener noreferrer"
+                       class="group flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-95 text-white font-semibold text-sm shadow-lg transition-all duration-200 hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        <span>Seguinos en Instagram</span>
+                    </a>
+
+                    <!-- Botón discreto para el Dueño / Panel Admin -->
+                    <div class="pt-2 text-center">
+                        <button id="open-admin-login-btn" class="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-barber-gold transition py-1 px-2 rounded-lg">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Acceso Dueño / Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- =================================================================
+                 CONTENIDO PRINCIPAL (DERECHA DEL PANEL LATERAL)
+                 ================================================================= -->
+            <main class="flex-1 min-w-0">
+
+                <!-- SECCIÓN HERO / BIENVENIDA -->
+                <section id="inicio" class="relative overflow-hidden border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900 via-barber-dark to-barber-dark px-6 py-16 sm:px-12 lg:py-24">
+                    <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-barber-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="max-w-4xl mx-auto relative z-10">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-barber-gold/10 border border-barber-gold/30 text-barber-gold text-xs font-semibold uppercase tracking-widest mb-6">
+                            <span>Tradición & Estilo Moderno</span>
+                        </div>
+
+                        <h2 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                            Tu mejor versión empieza con un <span class="text-barber-gold italic">buen corte.</span>
+                        </h2>
+
+                        <p class="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed">
+                            Combinamos técnicas clásicas de barbería con las tendencias actuales. Atención personalizada, toalla caliente, navaja tradicional y el mejor ambiente para que te relajes.
+                        </p>
+
+                        <div class="mt-8 flex flex-wrap items-center gap-4">
+                            <a id="hero-wa-btn" href="https://wa.me/message/MIWPGUSA6FKRB1" target="_blank" rel="noopener noreferrer"
+                               class="inline-flex items-center gap-3 px-6 py-3.5 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black font-bold text-sm sm:text-base shadow-lg shadow-barber-gold/20 transition-all hover:-translate-y-0.5">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                                </svg>
+                                <span>Reservar Turno por WhatsApp</span>
+                            </a>
+
+                            <a href="#precios" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border border-zinc-700 font-semibold text-sm sm:text-base transition">
+                                <span>Ver Lista de Precios</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =============================================================
+                     SECCIÓN PROMOCIONES ACTIVAS (DINÁMICA DESDE FIRESTORE)
+                     ============================================================= -->
+                <section id="promociones" class="px-6 pt-14 pb-4 sm:px-12 max-w-5xl mx-auto">
+                    <div class="flex items-center justify-between gap-4 mb-6">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-[0.2em] text-amber-400">Oportunidades</span>
+                            <h3 class="font-serif text-2xl sm:text-3xl font-bold text-white mt-0.5">Promociones Vigentes</h3>
+                        </div>
+                    </div>
+
+                    <div id="public-promos-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Renderizado dinámico -->
+                    </div>
+                </section>
+
+                <!-- =============================================================
+                     SECCIÓN LISTA DE PRECIOS INTERACTIVA (DINÁMICA)
+                     ============================================================= -->
+                <section id="precios" class="px-6 py-14 sm:px-12 max-w-5xl mx-auto">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-800 pb-6 mb-10">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-[0.2em] text-barber-gold">Tarifario Vigente</span>
+                            <h3 class="font-serif text-3xl sm:text-4xl font-bold text-white mt-1">Servicios & Precios</h3>
+                        </div>
+                        <p class="text-sm text-zinc-400">
+                            Tocá cualquier servicio para consultar por WhatsApp; el mensaje incluirá el corte elegido.
+                        </p>
+                    </div>
+
+                    <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Renderizado dinámico desde Firestore -->
+                    </div>
+
+                    <div class="mt-8 p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-zinc-400">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-barber-gold"></span>
+                            <span>Aceptamos Efectivo, Transferencia Bancaria, Mercado Pago y Tarjetas.</span>
+                        </div>
+                        <span class="text-barber-gold font-medium">Precios actualizados en tiempo real</span>
+                    </div>
+                </section>
+
+                <!-- =============================================================
+                     SECCIÓN REDES SOCIALES Y UBICACIÓN DETALLADA
+                     ============================================================= -->
+                <section id="ubicacion" class="px-6 py-14 sm:px-12 max-w-5xl mx-auto space-y-10 border-t border-zinc-800/80">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-[0.2em] text-barber-gold">Conectá con nosotros</span>
+                        <h3 class="font-serif text-3xl font-bold text-white mt-1">Redes & Ubicación</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Etiqueta Grande WhatsApp -->
+                        <a id="card-wa-btn" href="https://wa.me/message/MIWPGUSA6FKRB1" target="_blank" rel="noopener noreferrer"
+                           class="group relative overflow-hidden p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/60 transition-all duration-300 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 mb-1">WhatsApp Oficial</span>
+                                    <h4 class="text-lg font-bold text-white">Pedí tu turno ahora</h4>
+                                    <p id="card-wa-display" class="text-sm text-zinc-400">+54 9 11 0000-0000</p>
+                                </div>
+                            </div>
+                            <span class="text-emerald-400 group-hover:translate-x-1 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </a>
+
+                        <!-- Etiqueta Grande Instagram -->
+                        <a id="card-ig-btn" href="https://www.instagram.com/knd_barberia/" target="_blank" rel="noopener noreferrer"
+                           class="group relative overflow-hidden p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-pink-500/60 transition-all duration-300 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-pink-500/15 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-pink-500/20 text-pink-400 mb-1">Instagram</span>
+                                    <h4 class="text-lg font-bold text-white">Mirá nuestros cortes</h4>
+                                    <p id="card-ig-display" class="text-sm text-zinc-400">@knd_barberia</p>
+                                </div>
+                            </div>
+                            <span class="text-pink-400 group-hover:translate-x-1 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </a>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-serif text-2xl font-bold text-white">Nuestras Sucursales</h4>
+                            <p class="text-sm text-zinc-400 mt-1">Elegí una dirección para abrirla en Google Maps.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <a href="https://www.google.com/maps/search/?api=1&amp;query=Rio+Turbio+1121%2C+Florencio+Varela%2C+Buenos+Aires%2C+Argentina" target="_blank" rel="noopener noreferrer" class="group rounded-2xl bg-barber-card border border-zinc-800 p-6 hover:border-barber-gold transition-all">
+                                <span class="text-xs font-bold uppercase tracking-wider text-barber-gold">Florencio Varela</span>
+                                <span class="block font-serif text-xl font-bold text-white mt-2 group-hover:text-barber-gold transition">Río Turbio 1121</span>
+                                <span class="inline-block text-sm text-zinc-400 mt-3 group-hover:text-white transition">📍 Ver en Google Maps</span>
+                            </a>
+                            <a href="https://www.google.com/maps/search/?api=1&amp;query=General+Peron+1820%2C+Zeballos%2C+Buenos+Aires%2C+Argentina" target="_blank" rel="noopener noreferrer" class="group rounded-2xl bg-barber-card border border-zinc-800 p-6 hover:border-barber-gold transition-all">
+                                <span class="text-xs font-bold uppercase tracking-wider text-barber-gold">Zeballos</span>
+                                <span class="block font-serif text-xl font-bold text-white mt-2 group-hover:text-barber-gold transition">General Perón 1820</span>
+                                <span class="inline-block text-sm text-zinc-400 mt-3 group-hover:text-white transition">📍 Ver en Google Maps</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="border-t border-zinc-800/80 px-6 py-8 sm:px-12 text-center sm:text-left">
+                    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+                        <p>© <span id="current-year"></span> <strong id="footer-brand-name" class="text-zinc-300">KND BARBERIA</strong>. Todos los derechos reservados.</p>
+                        <button id="footer-admin-btn" class="text-zinc-500 hover:text-barber-gold underline underline-offset-4 transition">
+                            Panel de Administración
+                        </button>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         MODAL DE INICIO DE SESIÓN PARA EL DUEÑO / ADMINISTRADOR
+         ===================================================================== -->
+    <div id="admin-login-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-barber-card border border-zinc-800 rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+            <button id="close-login-modal" aria-label="Cerrar" class="absolute top-4 right-4 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <div class="w-12 h-12 rounded-2xl bg-barber-gold/15 border border-barber-gold/40 text-barber-gold flex items-center justify-center mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-white">Panel del Dueño</h3>
+            <p class="text-sm text-zinc-400 mt-1">Ingresá la clave de acceso para editar precios, horarios y promociones en tiempo real.</p>
+
+            <form id="admin-login-form" class="mt-6 space-y-4">
+                <div>
+                    <label for="admin-pin-input" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Clave de Administrador</label>
+                    <input type="password" id="admin-pin-input" required placeholder="Ingresá tu clave (ej: 1234)"
+                           class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 text-white focus:outline-none focus:border-barber-gold transition">
+                    <p id="login-error-msg" class="text-xs text-red-400 mt-1.5 hidden">Clave incorrecta. Intentá nuevamente.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black font-bold text-sm transition shadow-lg shadow-barber-gold/10">
+                    Ingresar al Panel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         PANEL DE CONTROL DE ADMINISTRACIÓN (DASHBOARD COMPLETO EN TIEMPO REAL)
+         ===================================================================== -->
+    <div id="admin-dashboard-view" class="hidden min-h-screen bg-barber-dark">
+        <!-- Header del Dashboard -->
+        <header class="sticky top-0 z-40 bg-barber-sidebar border-b border-zinc-800 px-4 sm:px-8 py-4">
+            <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-barber-gold/15 border border-barber-gold/40 text-barber-gold flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="font-serif text-xl font-bold text-white leading-tight">Panel de Control — Barbería</h2>
+                        <div class="flex items-center gap-2 text-xs text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>Sincronizado en tiempo real</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="back-to-site-btn" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs sm:text-sm font-semibold border border-zinc-700 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span>Ver Página Pública</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navegación por Pestañas del Dashboard -->
+        <div class="max-w-6xl mx-auto px-4 sm:px-8 pt-6">
+            <div class="flex flex-wrap gap-2 border-b border-zinc-800 pb-4">
+                <button data-tab="tab-services" class="admin-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-barber-gold text-black transition">
+                    ✂️ Precios y Servicios
+                </button>
+                <button data-tab="tab-promos" class="admin-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-300 hover:bg-zinc-800 border border-zinc-800 transition">
+                    🔥 Promociones
+                </button>
+                <button data-tab="tab-settings" class="admin-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-300 hover:bg-zinc-800 border border-zinc-800 transition">
+                    🕒 Horarios, Ubicación & Redes
+                </button>
+            </div>
         </div>
 
-        <nav class="menu" aria-label="Menú principal">
-            <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#precios">Precios</a></li>
-                <li><a href="#sucursales">Sucursales</a></li>
-                <li><a href="#horarios">Horarios</a></li>
-                <li><a class="menu-contacto" href="https://wa.me/message/MIWPGUSA6FKRB1" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-                <li><a class="menu-instagram" href="https://www.instagram.com/knd_barberia/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            </ul>
-        </nav>
-    </header>
+        <!-- Contenido de Pestañas -->
+        <div class="max-w-6xl mx-auto px-4 sm:px-8 py-8">
 
-    <main class="main">
-        <section class="bienvenida" aria-labelledby="titulo-principal">
-            <div class="bienvenida-contenido">
-                <p class="eyebrow">ESTILO · DETALLE · ACTITUD</p>
-                <h1 id="titulo-principal">KND BARBERIA</h1>
-                <p>Tu estilo, en manos de profesionales. Encontrá tu próximo corte y vení a conocernos.</p>
-                <a class="boton-principal" href="https://wa.me/5491135733876?text=Hola%2C%20%C2%BFtienen%20un%20horario%20libre%20para%20un%20turno%20a%20las%20%5Bhora%5D%3F%20Me%20gustar%C3%ADa%20reservar." target="_blank" rel="noopener noreferrer">Reservá tu turno por WhatsApp</a>
-            </div>
-            <div class="bienvenida-marca" aria-hidden="true">
-                <span>KND</span>
-                <span>BARBERIA</span>
-            </div>
-        </section>
+            <!-- =============================================================
+                 PESTAÑA 1: GESTIÓN DE PRECIOS Y SERVICIOS
+                 ============================================================= -->
+            <div id="tab-services" class="admin-tab-content space-y-8">
+                <!-- Formulario para Agregar Nuevo Servicio -->
+                <div class="bg-barber-card border border-zinc-800 rounded-2xl p-6">
+                    <h3 class="font-serif text-xl font-bold text-white mb-4">Agregar Nuevo Servicio</h3>
+                    <form id="add-service-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="lg:col-span-2">
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Nombre del Servicio</label>
+                            <input type="text" id="new-srv-name" required placeholder="Ej: Corte + Perfilado de Cejas"
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Precio ($)</label>
+                            <input type="text" id="new-srv-price" required placeholder="Ej: $14.000"
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Duración Aprox.</label>
+                            <input type="text" id="new-srv-duration" value="40 min" placeholder="Ej: 40 min"
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Descripción breve</label>
+                            <input type="text" id="new-srv-desc" required placeholder="Ej: Incluye lavado, corte a tijera/máquina y terminación con navaja."
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div class="flex items-end">
+                            <label class="inline-flex items-center gap-2 cursor-pointer py-2.5">
+                                <input type="checkbox" id="new-srv-popular" class="w-4 h-4 accent-barber-gold rounded">
+                                <span class="text-sm text-zinc-300">Destacar como "Más Pedido"</span>
+                            </label>
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-4 flex justify-end">
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black font-bold text-sm transition">
+                                + Agregar Servicio
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-        <section class="servicios" id="servicios">
-            <div class="encabezado-seccion">
-                <p class="eyebrow">LO QUE HACEMOS</p>
-                <h2>Servicios</h2>
-                <p>Un buen corte empieza con atención a cada detalle.</p>
+                <!-- Listado Editable de Servicios Existentes -->
+                <div class="space-y-4">
+                    <h3 class="font-serif text-xl font-bold text-white">Servicios Actuales (Editá y guardá los cambios)</h3>
+                    <div id="admin-services-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
             </div>
-            <div class="servicios-lista">
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Corte." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">01</span>
-                    <h3>Corte</h3>
-                    <p class="servicio-precio">$14.000</p>
-                </a>
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Barba." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">02</span>
-                    <h3>Barba</h3>
-                    <p class="servicio-precio">$5.000</p>
-                </a>
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Corte%20y%20barba." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">03</span>
-                    <h3>Corte y barba</h3>
-                    <p class="servicio-precio">$17.000</p>
-                </a>
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Dise%C3%B1os." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">04</span>
-                    <h3>Diseños</h3>
-                    <p class="servicio-precio">$1.000</p>
-                </a>
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Claritos." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">05</span>
-                    <h3>Claritos</h3>
-                    <p class="servicio-precio">$40.000</p>
-                </a>
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Global." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">06</span>
-                    <h3>Global</h3>
-                    <p class="servicio-precio">$45.000</p>
-                </a>
-                <a class="servicio-item" href="https://api.whatsapp.com/send?phone=5491135733876&amp;text=Hola%2C%20quiero%20consultar%20y%20reservar%20un%20turno%20para%20Corte%20de%20ni%C3%B1o." target="_blank" rel="noopener noreferrer">
-                    <span class="servicio-numero">07</span>
-                    <h3>Corte de niño</h3>
-                    <p class="servicio-precio">Consultar precio</p>
-                </a>
-            </div>
-        </section>
 
-        <section class="precios" id="precios" aria-labelledby="titulo-precios">
-            <div class="encabezado-seccion">
-                <p class="eyebrow">NUESTROS SERVICIOS</p>
-                <h2 id="titulo-precios">Lista de precios</h2>
-                <p>Consultá los precios vigentes de nuestros servicios.</p>
-            </div>
-            <figure class="precios-imagen">
-                <img src="../IMG/precios.jpg" alt="Lista de precios: corte $14.000, barba $5.000, corte y barba $17.000, diseños $1.000, claritos $40.000, global $45.000 y corte de niño a consultar.">
-            </figure>
-        </section>
+            <!-- =============================================================
+                 PESTAÑA 2: GESTIÓN DE PROMOCIONES
+                 ============================================================= -->
+            <div id="tab-promos" class="admin-tab-content hidden space-y-8">
+                <!-- Formulario Nueva Promoción -->
+                <div class="bg-barber-card border border-zinc-800 rounded-2xl p-6">
+                    <h3 class="font-serif text-xl font-bold text-white mb-4">Crear Nueva Promoción</h3>
+                    <form id="add-promo-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Título de la Promo</label>
+                            <input type="text" id="new-promo-title" required placeholder="Ej: Combo Martes & Miércoles"
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Precio Promocional / Etiqueta</label>
+                            <input type="text" id="new-promo-badge" required placeholder="Ej: $15.000 o 20% OFF"
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Condición / Días válidos</label>
+                            <input type="text" id="new-promo-days" placeholder="Ej: Válido abonando en efectivo"
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Descripción de la promoción</label>
+                            <input type="text" id="new-promo-desc" required placeholder="Ej: Corte degradé + perfilado de barba con toalla caliente."
+                                   class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3 flex justify-end">
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black font-bold text-sm transition">
+                                + Publicar Promoción
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-        <section class="horarios panel" id="horarios">
-            <h2>Horarios</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Día</th>
-                        <th>Horario</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Lunes a Viernes</td>
-                        <td>10:00 hs - 20:00 hs</td>
-                    </tr>
-                    <tr>
-                        <td>Sábados</td>
-                        <td>10:00 hs - 20:00 hs</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+                <!-- Lista de Promociones -->
+                <div class="space-y-4">
+                    <h3 class="font-serif text-xl font-bold text-white">Promociones Cargadas</h3>
+                    <div id="admin-promos-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
 
-        <section class="sucursales panel" id="sucursales">
-            <h2>Sucursales</h2>
-            <div class="sucursal-item">
-                <h3>Río Turbio</h3>
-                <p><a class="enlace-maps" href="https://www.google.com/maps/dir/?api=1&amp;destination=Rio+Turbio+1121%2C+Florencio+Varela%2C+Buenos+Aires%2C+Argentina" target="_blank" rel="noopener noreferrer">Río Turbio 1121, Florencio Varela <span>Cómo llegar</span></a></p>
+            <!-- =============================================================
+                 PESTAÑA 3: HORARIOS, UBICACIÓN, REDES Y CLAVE ADMIN
+                 ============================================================= -->
+            <div id="tab-settings" class="admin-tab-content hidden">
+                <form id="settings-form" class="bg-barber-card border border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-white">Información General, Horarios y Contacto</h3>
+                        <p class="text-xs text-zinc-400 mt-1">Al guardar, los enlaces de WhatsApp e Instagram y los horarios de la web se actualizarán al instante.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Nombre del Local -->
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Nombre de la Barbería</label>
+                            <input type="text" id="cfg-brand-name" required
+                                   class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+
+                        <!-- Clave de Acceso Admin -->
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Clave de Acceso al Panel Admin</label>
+                            <input type="text" id="cfg-admin-pin" required
+                                   class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+
+                        <!-- WhatsApp Número Internacional -->
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Número WhatsApp (Sin + ni espacios, ej: 5491122334455)</label>
+                            <input type="text" id="cfg-wa-number" required
+                                   class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+
+                        <!-- WhatsApp Visible -->
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Teléfono Visible en Pantalla</label>
+                            <input type="text" id="cfg-wa-display" required
+                                   class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+
+                        <!-- Instagram Usuario -->
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Usuario de Instagram (Sin @)</label>
+                            <input type="text" id="cfg-ig-user" required
+                                   class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                        </div>
+
+                    </div>
+
+                    <!-- Horarios de Atención -->
+                    <div class="border-t border-zinc-800 pt-6">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-barber-gold mb-4">Horarios de Atención (Panel Izquierdo)</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Lunes a Viernes</label>
+                                <input type="text" id="cfg-hours-weekdays" required
+                                       class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Sábados</label>
+                                <input type="text" id="cfg-hours-saturday" required
+                                       class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Domingos / Feriados</label>
+                                <input type="text" id="cfg-hours-sunday" required
+                                       class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="px-8 py-3 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black font-bold text-sm shadow-lg shadow-barber-gold/10 transition">
+                            Guardar Configuración en la Nube
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="sucursal-item">
-                <h3>General Perón</h3>
-                <p><a class="enlace-maps" href="https://www.google.com/maps/dir/?api=1&amp;destination=General+Peron+1820%2C+Zeballos%2C+Buenos+Aires%2C+Argentina" target="_blank" rel="noopener noreferrer">General Perón 1820, Zeballos <span>Cómo llegar</span></a></p>
-            </div>
-        </section>
-    </main>
-    <footer class="footer">
-        <p>KND BARBERIA</p>
-        <div class="footer-contacto">
-            <a href="https://wa.me/message/MIWPGUSA6FKRB1" target="_blank" rel="noopener noreferrer">Contactanos por WhatsApp</a>
-            <a href="https://www.instagram.com/knd_barberia/" target="_blank" rel="noopener noreferrer">Instagram @knd_barberia</a>
+
         </div>
-    </footer>
+    </div>
+
+    <!-- =====================================================================
+         LÓGICA JAVASCRIPT + FIREBASE FIRESTORE EN TIEMPO REAL
+         ===================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Datos por defecto (se usan inicialmente y se guardan en Firestore si está vacío)
+        const DEFAULT_SETTINGS = {
+            brandName: "KND BARBERIA",
+            adminPin: "4444",
+            whatsappNumber: "5491135733876",
+            whatsappDisplay: "+54 9 11 3573-3876",
+            instagramUser: "knd_barberia",
+            hoursWeekdays: "10:00 - 20:30",
+            hoursSaturday: "09:30 - 20:00",
+            hoursSunday: "Cerrado"
+        };
+
+        const DEFAULT_SERVICES = [
+            { name: "Corte", price: "$14.000", duration: "", description: "", popular: false, sortOrder: 0 },
+            { name: "Barba", price: "$5.000", duration: "", description: "", popular: false, sortOrder: 1 },
+            { name: "Corte y barba", price: "$17.000", duration: "", description: "", popular: false, sortOrder: 2 },
+            { name: "Diseños", price: "$1.000", duration: "", description: "", popular: false, sortOrder: 3 },
+            { name: "Claritos", price: "$40.000", duration: "", description: "", popular: false, sortOrder: 4 },
+            { name: "Global", price: "$45.000", duration: "", description: "", popular: false, sortOrder: 5 },
+            { name: "Corte de niño", price: "Consultar", duration: "", description: "", popular: false, sortOrder: 6 }
+        ];
+
+        const LEGACY_DEFAULT_SERVICE_NAMES = [
+            "Corte Clásico",
+            "Degradé / Fade",
+            "Corte + Barba",
+            "Perfilado de Barba con Toalla Caliente"
+        ];
+
+        const DEFAULT_PROMOS = [];
+
+        // Estado global en memoria sincronizado con Firestore
+        let currentSettings = { ...DEFAULT_SETTINGS };
+        let currentServices = [];
+        let currentPromos = [];
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'barberia-el-clasico';
+
+        // Sistema de notificaciones Toast
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            const colors = type === "error"
+                ? "bg-red-950/95 border-red-700 text-red-200"
+                : "bg-zinc-900/95 border-barber-gold text-white";
+
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border ${colors} shadow-2xl text-sm font-medium flex items-center gap-2.5 transition-all duration-300 transform translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <span class="w-2 h-2 rounded-full ${type === 'error' ? 'bg-red-400' : 'bg-barber-gold'}"></span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            });
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        function createWhatsAppLink(customMessage) {
+            const cleanPhone = (currentSettings.whatsappNumber || "").replace(/\D/g, "");
+            return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(customMessage)}`;
+        }
+
+        const WHATSAPP_CONTACT_LINK = "https://wa.me/message/MIWPGUSA6FKRB1";
+
+        // =====================================================================
+        // RENDERIZADO DE LA VISTA PÚBLICA
+        // =====================================================================
+        function renderPublicSettings() {
+            const s = currentSettings;
+            const defaultWaUrl = WHATSAPP_CONTACT_LINK;
+            const igUrl = `https://www.instagram.com/${s.instagramUser}/`;
+
+            document.getElementById("mobile-brand-name").textContent = s.brandName;
+            document.getElementById("sidebar-brand-name").textContent = s.brandName;
+            document.getElementById("footer-brand-name").textContent = s.brandName;
+
+            document.getElementById("hours-weekdays").textContent = s.hoursWeekdays;
+            document.getElementById("hours-saturday").textContent = s.hoursSaturday;
+            document.getElementById("hours-sunday").textContent = s.hoursSunday;
+
+            document.getElementById("sidebar-wa-btn").href = defaultWaUrl;
+            document.getElementById("hero-wa-btn").href = defaultWaUrl;
+            document.getElementById("card-wa-btn").href = defaultWaUrl;
+            document.getElementById("card-wa-display").textContent = s.whatsappDisplay;
+
+            document.getElementById("sidebar-ig-btn").href = igUrl;
+            document.getElementById("card-ig-btn").href = igUrl;
+            document.getElementById("card-ig-display").textContent = `@${s.instagramUser}`;
+
+            // Rellenar también los inputs del formulario de configuración del admin
+            document.getElementById("cfg-brand-name").value = s.brandName || "";
+            document.getElementById("cfg-admin-pin").value = s.adminPin || "4444";
+            document.getElementById("cfg-wa-number").value = s.whatsappNumber || "";
+            document.getElementById("cfg-wa-display").value = s.whatsappDisplay || "";
+            document.getElementById("cfg-ig-user").value = s.instagramUser || "";
+            document.getElementById("cfg-hours-weekdays").value = s.hoursWeekdays || "";
+            document.getElementById("cfg-hours-saturday").value = s.hoursSaturday || "";
+            document.getElementById("cfg-hours-sunday").value = s.hoursSunday || "";
+        }
+
+        function renderPublicPromos() {
+            const promoSection = document.getElementById("promociones");
+            const navPromoLink = document.getElementById("nav-promos-link");
+            const grid = document.getElementById("public-promos-grid");
+            const activePromos = currentPromos.filter(p => p.active !== false);
+
+            if (activePromos.length === 0) {
+                promoSection.classList.add("hidden");
+                navPromoLink.classList.add("hidden");
+                return;
+            }
+
+            promoSection.classList.remove("hidden");
+            navPromoLink.classList.remove("hidden");
+
+            grid.innerHTML = activePromos.map(promo => {
+                const waLink = createWhatsAppLink(`Hola! Quiero aprovechar la promoción: *${promo.title}* (${promo.badge}).`);
+                return `
+                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/15 via-barber-card to-barber-card border border-barber-gold/50 p-6 flex flex-col justify-between shadow-lg">
+                        <div>
+                            <div class="flex items-center justify-between gap-3 mb-2">
+                                <span class="px-2.5 py-0.5 rounded-full bg-barber-gold text-black text-[11px] font-bold uppercase tracking-wider">Promo Activa</span>
+                                <span class="text-xl font-extrabold text-barber-gold">${promo.badge}</span>
+                            </div>
+                            <h4 class="font-serif text-xl font-bold text-white">${promo.title}</h4>
+                            <p class="text-sm text-zinc-300 mt-2 leading-relaxed">${promo.description}</p>
+                            ${promo.days ? `<p class="text-xs text-amber-300/90 mt-2 font-medium">📌 ${promo.days}</p>` : ''}
+                        </div>
+
+                        <div class="mt-5 pt-3 border-t border-zinc-800/80 flex justify-end">
+                            <a href="${waLink}" target="_blank" rel="noopener noreferrer"
+                               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+                                <span>Reservar Promo por WhatsApp</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function renderPublicServices() {
+            const servicesGrid = document.getElementById("services-grid");
+            if (currentServices.length === 0) {
+                servicesGrid.innerHTML = `<p class="text-zinc-400 text-sm col-span-2">Cargando servicios...</p>`;
+                return;
+            }
+
+            servicesGrid.innerHTML = currentServices.map(service => {
+                const serviceWaUrl = createWhatsAppLink(
+                    `Hola, quería consultar por el servicio *${service.name}* (${service.price}). ¿Me pueden dar más información y decirme qué horarios tienen disponibles?`
+                );
+
+                return `
+                    <a href="${serviceWaUrl}" target="_blank" rel="noopener noreferrer" class="group relative flex flex-col justify-between p-6 rounded-2xl bg-barber-card border ${service.popular ? 'border-barber-gold/50' : 'border-zinc-800/90'} hover:border-barber-gold transition-all duration-200 shadow-md">
+                        ${service.popular ? `
+                            <span class="absolute -top-3 right-5 px-3 py-0.5 rounded-full bg-barber-gold text-black text-[10px] font-bold uppercase tracking-wider shadow">
+                                Más Pedido
+                            </span>
+                        ` : ''}
+
+                        <div>
+                            <div class="flex items-baseline justify-between gap-4">
+                                <h4 class="font-serif text-xl font-bold text-white group-hover:text-barber-gold transition-colors">
+                                    ${service.name}
+                                </h4>
+                                <span class="font-sans text-xl font-bold text-barber-gold shrink-0">
+                                    ${service.price}
+                                </span>
+                            </div>
+                            ${service.duration ? `<p class="text-xs text-zinc-500 mt-1">Duración aprox: ${service.duration}</p>` : ''}
+                            ${service.description ? `<p class="text-sm text-zinc-400 mt-3 leading-relaxed">${service.description}</p>` : ''}
+                        </div>
+
+                        <div class="mt-5 pt-4 border-t border-zinc-800/80 flex items-center justify-between">
+                            <span class="text-xs text-zinc-500">Consulta directa</span>
+                            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 group-hover:bg-emerald-600 text-emerald-400 group-hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                                </svg>
+                                <span>Consultar por WhatsApp</span>
+                            </span>
+                        </div>
+                    </a>
+                `;
+            }).join("");
+        }
+
+        // =====================================================================
+        // RENDERIZADO DEL PANEL DE ADMINISTRACIÓN
+        // =====================================================================
+        function renderAdminServices() {
+            const container = document.getElementById("admin-services-list");
+            if (currentServices.length === 0) {
+                container.innerHTML = `<p class="text-zinc-400 text-sm">No hay servicios cargados aún.</p>`;
+                return;
+            }
+
+            container.innerHTML = currentServices.map(srv => `
+                <div class="bg-barber-card border border-zinc-800 rounded-2xl p-5 space-y-3" data-srv-id="${srv.id}">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] text-zinc-400 uppercase mb-1">Servicio</label>
+                            <input type="text" class="edit-srv-name w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm" value="${srv.name}">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-zinc-400 uppercase mb-1">Precio</label>
+                            <input type="text" class="edit-srv-price w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-barber-gold font-bold text-sm" value="${srv.price}">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-zinc-400 uppercase mb-1">Descripción</label>
+                        <input type="text" class="edit-srv-desc w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-300 text-sm" value="${srv.description}">
+                    </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-800/80">
+                        <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-zinc-300">
+                            <input type="checkbox" class="edit-srv-popular w-4 h-4 accent-barber-gold" ${srv.popular ? 'checked' : ''}>
+                            <span>Más Pedido</span>
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="delete-srv-btn px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs font-semibold transition">
+                                Eliminar
+                            </button>
+                            <button type="button" class="save-srv-btn px-4 py-1.5 rounded-lg bg-barber-gold hover:bg-barber-goldHover text-black text-xs font-bold transition">
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+
+            // Eventos de guardar y eliminar en cada tarjeta
+            container.querySelectorAll(".save-srv-btn").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    const card = e.target.closest("[data-srv-id]");
+                    const id = card.dataset.srvId;
+                    const updated = {
+                        name: card.querySelector(".edit-srv-name").value.trim(),
+                        price: card.querySelector(".edit-srv-price").value.trim(),
+                        description: card.querySelector(".edit-srv-desc").value.trim(),
+                        popular: card.querySelector(".edit-srv-popular").checked
+                    };
+                    if (!updated.name || !updated.price) return showToast("Completá nombre y precio", "error");
+                    try {
+                        if (db && currentUser) {
+                            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'services', id), updated);
+                            showToast("Servicio actualizado en tiempo real");
+                        }
+                    } catch (err) {
+                        showToast("Error al guardar el servicio", "error");
+                    }
+                });
+            });
+
+            container.querySelectorAll(".delete-srv-btn").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    const card = e.target.closest("[data-srv-id]");
+                    const id = card.dataset.srvId;
+                    try {
+                        if (db && currentUser) {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'services', id));
+                            showToast("Servicio eliminado");
+                        }
+                    } catch (err) {
+                        showToast("Error al eliminar", "error");
+                    }
+                });
+            });
+        }
+
+        function renderAdminPromos() {
+            const container = document.getElementById("admin-promos-list");
+            if (currentPromos.length === 0) {
+                container.innerHTML = `<p class="text-zinc-400 text-sm">No hay promociones creadas.</p>`;
+                return;
+            }
+
+            container.innerHTML = currentPromos.map(promo => `
+                <div class="bg-barber-card border ${promo.active ? 'border-barber-gold/50' : 'border-zinc-800 opacity-75'} rounded-2xl p-5 flex flex-col justify-between gap-4" data-promo-id="${promo.id}">
+                    <div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold uppercase px-2.5 py-0.5 rounded-full ${promo.active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-400'}">
+                                ${promo.active ? 'Activa en la web' : 'Pausada'}
+                            </span>
+                            <span class="text-lg font-bold text-barber-gold">${promo.badge}</span>
+                        </div>
+                        <h4 class="font-serif text-lg font-bold text-white mt-2">${promo.title}</h4>
+                        <p class="text-sm text-zinc-400 mt-1">${promo.description}</p>
+                        ${promo.days ? `<p class="text-xs text-zinc-500 mt-1">${promo.days}</p>` : ''}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-zinc-800">
+                        <button type="button" class="toggle-promo-btn px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition">
+                            ${promo.active ? 'Pausar Promo' : 'Activar Promo'}
+                        </button>
+                        <button type="button" class="delete-promo-btn px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs font-semibold transition">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join("");
+
+            container.querySelectorAll(".toggle-promo-btn").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    const card = e.target.closest("[data-promo-id]");
+                    const id = card.dataset.promoId;
+                    const promo = currentPromos.find(p => p.id === id);
+                    if (!promo || !db || !currentUser) return;
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'promotions', id), {
+                            active: !promo.active
+                        });
+                        showToast(!promo.active ? "Promoción activada" : "Promoción pausada");
+                    } catch (err) {
+                        showToast("Error al actualizar promoción", "error");
+                    }
+                });
+            });
+
+            container.querySelectorAll(".delete-promo-btn").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    const card = e.target.closest("[data-promo-id]");
+                    const id = card.dataset.promoId;
+                    if (!db || !currentUser) return;
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'promotions', id));
+                        showToast("Promoción eliminada");
+                    } catch (err) {
+                        showToast("Error al eliminar promoción", "error");
+                    }
+                });
+            });
+        }
+
+        // =====================================================================
+        // INICIALIZACIÓN DE FIREBASE Y SUSCRIPCIÓN EN TIEMPO REAL
+        // =====================================================================
+        async function initFirebaseRealtime() {
+            try {
+                if (typeof __firebase_config === 'undefined') {
+                    // Fallback visual si se abre fuera del entorno con config inyectada
+                    document.getElementById("open-admin-login-btn").classList.add("hidden");
+                    document.getElementById("footer-admin-btn").classList.add("hidden");
+                    renderPublicSettings();
+                    currentServices = DEFAULT_SERVICES.map((s, idx) => ({ id: String(idx), ...s }));
+                    currentPromos = DEFAULT_PROMOS.map((p, idx) => ({ id: String(idx), ...p }));
+                    renderPublicServices();
+                    renderPublicPromos();
+                    renderAdminServices();
+                    renderAdminPromos();
+                    return;
+                }
+
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Autenticación obligatoria antes de consultar Firestore
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const cred = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUser = cred.user;
+                } else {
+                    const cred = await signInAnonymously(auth);
+                    currentUser = cred.user;
+                }
+
+                if (!currentUser) return;
+
+                // 1. Escuchar Configuración General (Horarios, Ubicación, Redes)
+                const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'general');
+                onSnapshot(settingsDocRef, async (snap) => {
+                    if (snap.exists()) {
+                        const savedSettings = snap.data();
+                        const migratedSettings = {};
+                        if (savedSettings.brandName === "EL CLÁSICO") {
+                            savedSettings.brandName = DEFAULT_SETTINGS.brandName;
+                            migratedSettings.brandName = DEFAULT_SETTINGS.brandName;
+                        }
+                        if (savedSettings.whatsappNumber === "5491100000000") {
+                            savedSettings.whatsappNumber = DEFAULT_SETTINGS.whatsappNumber;
+                            savedSettings.whatsappDisplay = DEFAULT_SETTINGS.whatsappDisplay;
+                            migratedSettings.whatsappNumber = DEFAULT_SETTINGS.whatsappNumber;
+                            migratedSettings.whatsappDisplay = DEFAULT_SETTINGS.whatsappDisplay;
+                        }
+                        if (savedSettings.instagramUser === "tu_barberia") {
+                            savedSettings.instagramUser = DEFAULT_SETTINGS.instagramUser;
+                            migratedSettings.instagramUser = DEFAULT_SETTINGS.instagramUser;
+                        }
+                        if (savedSettings.adminPin === "1234") {
+                            savedSettings.adminPin = DEFAULT_SETTINGS.adminPin;
+                            migratedSettings.adminPin = DEFAULT_SETTINGS.adminPin;
+                        }
+                        if (Object.keys(migratedSettings).length > 0) {
+                            updateDoc(settingsDocRef, migratedSettings)
+                                .catch((error) => console.error("Error actualizando la configuración anterior:", error));
+                        }
+                        currentSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
+                    } else {
+                        await setDoc(settingsDocRef, DEFAULT_SETTINGS);
+                        currentSettings = { ...DEFAULT_SETTINGS };
+                    }
+                    renderPublicSettings();
+                    renderPublicServices();
+                    renderPublicPromos();
+                }, (error) => {
+                    console.error("Error leyendo configuración:", error);
+                });
+
+                // 2. Escuchar Colección de Servicios y Precios
+                const servicesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'services');
+                let seededServices = false;
+                let migratingLegacyServices = false;
+                onSnapshot(servicesColRef, async (snapshot) => {
+                    if (migratingLegacyServices) return;
+                    if (snapshot.empty && !seededServices) {
+                        seededServices = true;
+                        for (const srv of DEFAULT_SERVICES) {
+                            await addDoc(servicesColRef, srv);
+                        }
+                        return;
+                    }
+                    const legacyDocsByName = new Map(snapshot.docs.map(d => [d.data().name, d]));
+                    const isLegacyDefaults = snapshot.docs.length === LEGACY_DEFAULT_SERVICE_NAMES.length
+                        && LEGACY_DEFAULT_SERVICE_NAMES.every(name => legacyDocsByName.has(name));
+                    if (isLegacyDefaults) {
+                        migratingLegacyServices = true;
+                        const legacyDocs = LEGACY_DEFAULT_SERVICE_NAMES.map(name => legacyDocsByName.get(name));
+                        const batch = writeBatch(db);
+                        const migratedServices = DEFAULT_SERVICES.map((service, index) => {
+                            const existingDoc = legacyDocs[index];
+                            const serviceRef = existingDoc ? existingDoc.ref : doc(servicesColRef);
+                            batch.set(serviceRef, service);
+                            return { ...service, id: serviceRef.id };
+                        });
+
+                        try {
+                            await batch.commit();
+                            currentServices = migratedServices;
+                            renderPublicServices();
+                            renderAdminServices();
+                        } catch (error) {
+                            console.error("Error actualizando los servicios y precios:", error);
+                            currentServices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                            renderPublicServices();
+                            renderAdminServices();
+                            showToast("No se pudieron actualizar los servicios", "error");
+                        } finally {
+                            migratingLegacyServices = false;
+                        }
+                        return;
+                    }
+                    currentServices = snapshot.docs
+                        .map(d => ({ id: d.id, ...d.data() }))
+                        .sort((a, b) => (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER));
+                    renderPublicServices();
+                    renderAdminServices();
+                }, (error) => {
+                    console.error("Error leyendo servicios:", error);
+                });
+
+                // 3. Escuchar Colección de Promociones
+                const promosColRef = collection(db, 'artifacts', appId, 'public', 'data', 'promotions');
+                let seededPromos = false;
+                onSnapshot(promosColRef, async (snapshot) => {
+                    if (snapshot.empty && !seededPromos) {
+                        seededPromos = true;
+                        for (const promo of DEFAULT_PROMOS) {
+                            await addDoc(promosColRef, promo);
+                        }
+                        return;
+                    }
+                    currentPromos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderPublicPromos();
+                    renderAdminPromos();
+                }, (error) => {
+                    console.error("Error leyendo promociones:", error);
+                });
+
+            } catch (err) {
+                console.error("Error inicializando Firebase:", err);
+                renderPublicSettings();
+                renderPublicServices();
+                renderPublicPromos();
+            }
+        }
+
+        // =====================================================================
+        // EVENTOS DE INTERFAZ Y FORMULARIOS ADMIN
+        // =====================================================================
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("current-year").textContent = new Date().getFullYear();
+
+            // Menú móvil lateral
+            const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+            const sidebar = document.getElementById("left-sidebar");
+            const backdrop = document.getElementById("sidebar-backdrop");
+            const iconOpen = document.getElementById("menu-icon-open");
+            const iconClose = document.getElementById("menu-icon-close");
+
+            function toggleSidebar(forceClose = false) {
+                const isClosed = sidebar.classList.contains("-translate-x-full");
+                if (isClosed && !forceClose) {
+                    sidebar.classList.remove("-translate-x-full");
+                    backdrop.classList.remove("hidden");
+                    iconOpen.classList.add("hidden");
+                    iconClose.classList.remove("hidden");
+                } else {
+                    sidebar.classList.add("-translate-x-full");
+                    backdrop.classList.add("hidden");
+                    iconOpen.classList.remove("hidden");
+                    iconClose.classList.add("hidden");
+                }
+            }
+
+            mobileMenuBtn.addEventListener("click", () => toggleSidebar());
+            backdrop.addEventListener("click", () => toggleSidebar(true));
+            document.querySelectorAll(".nav-link").forEach(link => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth < 1024) toggleSidebar(true);
+                });
+            });
+
+            // Modal Login Admin
+            const loginModal = document.getElementById("admin-login-modal");
+            const pinInput = document.getElementById("admin-pin-input");
+            const loginError = document.getElementById("login-error-msg");
+
+            function openLoginModal() {
+                if (!db || !currentUser) {
+                    return showToast("El panel de administración todavía no está conectado.", "error");
+                }
+                toggleSidebar(true);
+                loginError.classList.add("hidden");
+                pinInput.value = "";
+                loginModal.classList.remove("hidden");
+                loginModal.classList.add("flex");
+                setTimeout(() => pinInput.focus(), 100);
+            }
+
+            document.getElementById("open-admin-login-btn").addEventListener("click", openLoginModal);
+            document.getElementById("footer-admin-btn").addEventListener("click", openLoginModal);
+            document.getElementById("close-login-modal").addEventListener("click", () => {
+                loginModal.classList.add("hidden");
+                loginModal.classList.remove("flex");
+            });
+
+            document.getElementById("admin-login-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const enteredPin = pinInput.value.trim();
+                const expectedPin = currentSettings.adminPin || "4444";
+
+                if (enteredPin === expectedPin) {
+                    loginModal.classList.add("hidden");
+                    loginModal.classList.remove("flex");
+                    document.getElementById("public-view").classList.add("hidden");
+                    document.getElementById("admin-dashboard-view").classList.remove("hidden");
+                    window.scrollTo(0, 0);
+                    showToast("Bienvenido al Panel de Control");
+                } else {
+                    loginError.classList.remove("hidden");
+                }
+            });
+
+            // Volver a la vista pública
+            document.getElementById("back-to-site-btn").addEventListener("click", () => {
+                document.getElementById("admin-dashboard-view").classList.add("hidden");
+                document.getElementById("public-view").classList.remove("hidden");
+                window.scrollTo(0, 0);
+            });
+
+            // Navegación por pestañas del Dashboard
+            const tabBtns = document.querySelectorAll(".admin-tab-btn");
+            const tabContents = document.querySelectorAll(".admin-tab-content");
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const targetId = btn.dataset.tab;
+                    tabBtns.forEach(b => {
+                        b.classList.remove("bg-barber-gold", "text-black");
+                        b.classList.add("bg-zinc-900", "text-zinc-300", "border", "border-zinc-800");
+                    });
+                    btn.classList.remove("bg-zinc-900", "text-zinc-300", "border", "border-zinc-800");
+                    btn.classList.add("bg-barber-gold", "text-black");
+
+                    tabContents.forEach(c => c.classList.add("hidden"));
+                    document.getElementById(targetId).classList.remove("hidden");
+                });
+            });
+
+            // Agregar Nuevo Servicio
+            document.getElementById("add-service-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (!db || !currentUser) return showToast("Conectando con la nube...", "error");
+
+                const newService = {
+                    name: document.getElementById("new-srv-name").value.trim(),
+                    price: document.getElementById("new-srv-price").value.trim(),
+                    duration: document.getElementById("new-srv-duration").value.trim() || "30 min",
+                    description: document.getElementById("new-srv-desc").value.trim(),
+                    popular: document.getElementById("new-srv-popular").checked,
+                    sortOrder: currentServices.length
+                };
+
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'services'), newService);
+                    e.target.reset();
+                    showToast("Nuevo servicio publicado en la web");
+                } catch (err) {
+                    showToast("Error al agregar el servicio", "error");
+                }
+            });
+
+            // Agregar Nueva Promoción
+            document.getElementById("add-promo-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (!db || !currentUser) return showToast("Conectando con la nube...", "error");
+
+                const newPromo = {
+                    title: document.getElementById("new-promo-title").value.trim(),
+                    badge: document.getElementById("new-promo-badge").value.trim(),
+                    days: document.getElementById("new-promo-days").value.trim(),
+                    description: document.getElementById("new-promo-desc").value.trim(),
+                    active: true
+                };
+
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'promotions'), newPromo);
+                    e.target.reset();
+                    showToast("Promoción publicada en tiempo real");
+                } catch (err) {
+                    showToast("Error al crear promoción", "error");
+                }
+            });
+
+            // Guardar Configuración General (Horarios, Ubicación, Redes, Clave)
+            document.getElementById("settings-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (!db || !currentUser) return showToast("Conectando con la nube...", "error");
+
+                const updatedSettings = {
+                    brandName: document.getElementById("cfg-brand-name").value.trim(),
+                    adminPin: document.getElementById("cfg-admin-pin").value.trim() || "4444",
+                    whatsappNumber: document.getElementById("cfg-wa-number").value.trim(),
+                    whatsappDisplay: document.getElementById("cfg-wa-display").value.trim(),
+                    instagramUser: document.getElementById("cfg-ig-user").value.trim().replace(/^@/, ""),
+                    hoursWeekdays: document.getElementById("cfg-hours-weekdays").value.trim(),
+                    hoursSaturday: document.getElementById("cfg-hours-saturday").value.trim(),
+                    hoursSunday: document.getElementById("cfg-hours-sunday").value.trim()
+                };
+
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'general'), updatedSettings);
+                    showToast("Horarios y redes actualizados");
+                } catch (err) {
+                    showToast("Error al guardar la configuración", "error");
+                }
+            });
+
+            // Iniciar conexión en tiempo real
+            initFirebaseRealtime();
+        });
+    </script>
 </body>
 </html>
-
