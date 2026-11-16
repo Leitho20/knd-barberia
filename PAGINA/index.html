@@ -370,14 +370,19 @@
             </div>
 
             <h3 class="font-serif text-2xl font-bold text-white">Panel del Dueño</h3>
-            <p class="text-sm text-zinc-400 mt-1">Ingresá la clave de acceso para editar precios, horarios y promociones en tiempo real.</p>
+            <p class="text-sm text-zinc-400 mt-1">Iniciá sesión con tu cuenta administradora para editar precios, horarios y promociones.</p>
 
             <form id="admin-login-form" class="mt-6 space-y-4">
                 <div>
-                    <label for="admin-pin-input" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Clave de Administrador</label>
-                    <input type="password" id="admin-pin-input" required placeholder="Ingresá tu clave (ej: 1234)"
+                    <label for="admin-email-input" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Correo electrónico</label>
+                    <input type="email" id="admin-email-input" required autocomplete="username" placeholder="tu correo de administrador"
                            class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 text-white focus:outline-none focus:border-barber-gold transition">
-                    <p id="login-error-msg" class="text-xs text-red-400 mt-1.5 hidden">Clave incorrecta. Intentá nuevamente.</p>
+                </div>
+                <div>
+                    <label for="admin-password-input" class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Contraseña</label>
+                    <input type="password" id="admin-password-input" required autocomplete="current-password"
+                           class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 text-white focus:outline-none focus:border-barber-gold transition">
+                    <p id="login-error-msg" class="text-xs text-red-400 mt-1.5 hidden">No se pudo iniciar sesión. Verificá tus datos y permisos.</p>
                 </div>
 
                 <button type="submit" class="w-full py-3 px-4 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black font-bold text-sm transition shadow-lg shadow-barber-gold/10">
@@ -554,13 +559,6 @@
                                    class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
                         </div>
 
-                        <!-- Clave de Acceso Admin -->
-                        <div>
-                            <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Clave de Acceso al Panel Admin</label>
-                            <input type="text" id="cfg-admin-pin" required
-                                   class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
-                        </div>
-
                         <!-- WhatsApp Número Internacional -->
                         <div>
                             <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Número WhatsApp (Sin + ni espacios, ej: 5491122334455)</label>
@@ -622,13 +620,21 @@
          ===================================================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, writeBatch, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Datos por defecto (se usan inicialmente y se guardan en Firestore si está vacío)
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyAOUObK9VgZiD90kNzJtu3W8QmZOlF_76g",
+            authDomain: "knb-barberia.firebaseapp.com",
+            projectId: "knb-barberia",
+            storageBucket: "knb-barberia.firebasestorage.app",
+            messagingSenderId: "663662346431",
+            appId: "1:663662346431:web:9e26a26152d54adab1460a"
+        };
+        const ADMIN_UID = "G1mGfJJAqhgPQmImaNOUDHfibk92";
+
         const DEFAULT_SETTINGS = {
             brandName: "KND BARBERIA",
-            adminPin: "4444",
             whatsappNumber: "5491135733876",
             whatsappDisplay: "+54 9 11 3573-3876",
             instagramUser: "knd_barberia",
@@ -647,13 +653,6 @@
             { name: "Corte de niño", price: "Consultar", duration: "", description: "", popular: false, sortOrder: 6 }
         ];
 
-        const LEGACY_DEFAULT_SERVICE_NAMES = [
-            "Corte Clásico",
-            "Degradé / Fade",
-            "Corte + Barba",
-            "Perfilado de Barba con Toalla Caliente"
-        ];
-
         const DEFAULT_PROMOS = [];
 
         // Estado global en memoria sincronizado con Firestore
@@ -663,7 +662,7 @@
         let db = null;
         let auth = null;
         let currentUser = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'barberia-el-clasico';
+        const appId = "knd-barberia";
 
         // Sistema de notificaciones Toast
         function showToast(message, type = "success") {
@@ -724,7 +723,6 @@
 
             // Rellenar también los inputs del formulario de configuración del admin
             document.getElementById("cfg-brand-name").value = s.brandName || "";
-            document.getElementById("cfg-admin-pin").value = s.adminPin || "4444";
             document.getElementById("cfg-wa-number").value = s.whatsappNumber || "";
             document.getElementById("cfg-wa-display").value = s.whatsappDisplay || "";
             document.getElementById("cfg-ig-user").value = s.instagramUser || "";
@@ -966,156 +964,114 @@
             });
         }
 
+        async function initializeAdminData() {
+            if (!db || !currentUser || currentUser.uid !== ADMIN_UID) {
+                throw new Error("La cuenta autenticada no es administradora.");
+            }
+
+            const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'general');
+            const settingsSnapshot = await getDoc(settingsRef);
+            if (!settingsSnapshot.exists()) {
+                await setDoc(settingsRef, DEFAULT_SETTINGS);
+            }
+
+            const servicesRef = collection(db, 'artifacts', appId, 'public', 'data', 'services');
+            const servicesSnapshot = await getDocs(servicesRef);
+            if (servicesSnapshot.empty) {
+                const batch = writeBatch(db);
+                const seededServices = DEFAULT_SERVICES.map(service => {
+                    const serviceRef = doc(servicesRef);
+                    batch.set(serviceRef, service);
+                    return { ...service, id: serviceRef.id };
+                });
+                await batch.commit();
+                currentServices = seededServices;
+            } else {
+                currentServices = servicesSnapshot.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER));
+            }
+
+            const promosRef = collection(db, 'artifacts', appId, 'public', 'data', 'promotions');
+            const promosSnapshot = await getDocs(promosRef);
+            currentPromos = promosSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            renderPublicSettings();
+            renderPublicServices();
+            renderPublicPromos();
+            renderAdminServices();
+            renderAdminPromos();
+        }
+
         // =====================================================================
         // INICIALIZACIÓN DE FIREBASE Y SUSCRIPCIÓN EN TIEMPO REAL
         // =====================================================================
         async function initFirebaseRealtime() {
             try {
-                if (typeof __firebase_config === 'undefined') {
-                    // Fallback visual si se abre fuera del entorno con config inyectada
-                    document.getElementById("open-admin-login-btn").classList.add("hidden");
-                    document.getElementById("footer-admin-btn").classList.add("hidden");
-                    renderPublicSettings();
-                    currentServices = DEFAULT_SERVICES.map((s, idx) => ({ id: String(idx), ...s }));
-                    currentPromos = DEFAULT_PROMOS.map((p, idx) => ({ id: String(idx), ...p }));
-                    renderPublicServices();
-                    renderPublicPromos();
-                    renderAdminServices();
-                    renderAdminPromos();
-                    return;
-                }
-
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
+                const app = initializeApp(FIREBASE_CONFIG);
                 auth = getAuth(app);
                 db = getFirestore(app);
+                onAuthStateChanged(auth, user => {
+                    currentUser = user && user.uid === ADMIN_UID ? user : null;
+                });
 
-                // Autenticación obligatoria antes de consultar Firestore
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const cred = await signInWithCustomToken(auth, __initial_auth_token);
-                    currentUser = cred.user;
-                } else {
-                    const cred = await signInAnonymously(auth);
-                    currentUser = cred.user;
-                }
-
-                if (!currentUser) return;
-
-                // 1. Escuchar Configuración General (Horarios, Ubicación, Redes)
-                const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'general');
-                onSnapshot(settingsDocRef, async (snap) => {
-                    if (snap.exists()) {
-                        const savedSettings = snap.data();
-                        const migratedSettings = {};
-                        if (savedSettings.brandName === "EL CLÁSICO") {
-                            savedSettings.brandName = DEFAULT_SETTINGS.brandName;
-                            migratedSettings.brandName = DEFAULT_SETTINGS.brandName;
-                        }
-                        if (savedSettings.whatsappNumber === "5491100000000") {
-                            savedSettings.whatsappNumber = DEFAULT_SETTINGS.whatsappNumber;
-                            savedSettings.whatsappDisplay = DEFAULT_SETTINGS.whatsappDisplay;
-                            migratedSettings.whatsappNumber = DEFAULT_SETTINGS.whatsappNumber;
-                            migratedSettings.whatsappDisplay = DEFAULT_SETTINGS.whatsappDisplay;
-                        }
-                        if (savedSettings.instagramUser === "tu_barberia") {
-                            savedSettings.instagramUser = DEFAULT_SETTINGS.instagramUser;
-                            migratedSettings.instagramUser = DEFAULT_SETTINGS.instagramUser;
-                        }
-                        if (savedSettings.adminPin === "1234") {
-                            savedSettings.adminPin = DEFAULT_SETTINGS.adminPin;
-                            migratedSettings.adminPin = DEFAULT_SETTINGS.adminPin;
-                        }
-                        if (Object.keys(migratedSettings).length > 0) {
-                            updateDoc(settingsDocRef, migratedSettings)
-                                .catch((error) => console.error("Error actualizando la configuración anterior:", error));
-                        }
-                        currentSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
-                    } else {
-                        await setDoc(settingsDocRef, DEFAULT_SETTINGS);
-                        currentSettings = { ...DEFAULT_SETTINGS };
-                    }
+                const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'general');
+                onSnapshot(settingsRef, snapshot => {
+                    currentSettings = snapshot.exists()
+                        ? { ...DEFAULT_SETTINGS, ...snapshot.data() }
+                        : { ...DEFAULT_SETTINGS };
                     renderPublicSettings();
                     renderPublicServices();
                     renderPublicPromos();
-                }, (error) => {
+                }, error => {
                     console.error("Error leyendo configuración:", error);
+                    currentSettings = { ...DEFAULT_SETTINGS };
+                    renderPublicSettings();
+                    showToast("No se pudo cargar la configuración guardada.", "error");
                 });
 
-                // 2. Escuchar Colección de Servicios y Precios
-                const servicesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'services');
-                let seededServices = false;
-                let migratingLegacyServices = false;
-                onSnapshot(servicesColRef, async (snapshot) => {
-                    if (migratingLegacyServices) return;
-                    if (snapshot.empty && !seededServices) {
-                        seededServices = true;
-                        for (const srv of DEFAULT_SERVICES) {
-                            await addDoc(servicesColRef, srv);
-                        }
-                        return;
-                    }
-                    const legacyDocsByName = new Map(snapshot.docs.map(d => [d.data().name, d]));
-                    const isLegacyDefaults = snapshot.docs.length === LEGACY_DEFAULT_SERVICE_NAMES.length
-                        && LEGACY_DEFAULT_SERVICE_NAMES.every(name => legacyDocsByName.has(name));
-                    if (isLegacyDefaults) {
-                        migratingLegacyServices = true;
-                        const legacyDocs = LEGACY_DEFAULT_SERVICE_NAMES.map(name => legacyDocsByName.get(name));
-                        const batch = writeBatch(db);
-                        const migratedServices = DEFAULT_SERVICES.map((service, index) => {
-                            const existingDoc = legacyDocs[index];
-                            const serviceRef = existingDoc ? existingDoc.ref : doc(servicesColRef);
-                            batch.set(serviceRef, service);
-                            return { ...service, id: serviceRef.id };
-                        });
-
-                        try {
-                            await batch.commit();
-                            currentServices = migratedServices;
-                            renderPublicServices();
-                            renderAdminServices();
-                        } catch (error) {
-                            console.error("Error actualizando los servicios y precios:", error);
-                            currentServices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                            renderPublicServices();
-                            renderAdminServices();
-                            showToast("No se pudieron actualizar los servicios", "error");
-                        } finally {
-                            migratingLegacyServices = false;
-                        }
-                        return;
-                    }
-                    currentServices = snapshot.docs
-                        .map(d => ({ id: d.id, ...d.data() }))
-                        .sort((a, b) => (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER));
+                const servicesRef = collection(db, 'artifacts', appId, 'public', 'data', 'services');
+                onSnapshot(servicesRef, snapshot => {
+                    currentServices = snapshot.empty
+                        ? DEFAULT_SERVICES.map((service, index) => ({ ...service, id: `default-${index}` }))
+                        : snapshot.docs
+                            .map(d => ({ id: d.id, ...d.data() }))
+                            .sort((a, b) => (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER));
                     renderPublicServices();
                     renderAdminServices();
-                }, (error) => {
+                }, error => {
                     console.error("Error leyendo servicios:", error);
+                    currentServices = DEFAULT_SERVICES.map((service, index) => ({ ...service, id: `default-${index}` }));
+                    renderPublicServices();
+                    renderAdminServices();
+                    showToast("No se pudieron cargar los servicios guardados.", "error");
                 });
 
-                // 3. Escuchar Colección de Promociones
-                const promosColRef = collection(db, 'artifacts', appId, 'public', 'data', 'promotions');
-                let seededPromos = false;
-                onSnapshot(promosColRef, async (snapshot) => {
-                    if (snapshot.empty && !seededPromos) {
-                        seededPromos = true;
-                        for (const promo of DEFAULT_PROMOS) {
-                            await addDoc(promosColRef, promo);
-                        }
-                        return;
-                    }
+                const promosRef = collection(db, 'artifacts', appId, 'public', 'data', 'promotions');
+                onSnapshot(promosRef, snapshot => {
                     currentPromos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                     renderPublicPromos();
                     renderAdminPromos();
-                }, (error) => {
+                }, error => {
                     console.error("Error leyendo promociones:", error);
+                    currentPromos = [];
+                    renderPublicPromos();
+                    renderAdminPromos();
+                    showToast("No se pudieron cargar las promociones guardadas.", "error");
                 });
-
-            } catch (err) {
-                console.error("Error inicializando Firebase:", err);
+            } catch (error) {
+                console.error("Error inicializando Firebase:", error);
+                db = null;
+                auth = null;
+                currentSettings = { ...DEFAULT_SETTINGS };
+                currentServices = DEFAULT_SERVICES.map((service, index) => ({ ...service, id: `default-${index}` }));
+                currentPromos = [];
+                document.getElementById("open-admin-login-btn").classList.add("hidden");
+                document.getElementById("footer-admin-btn").classList.add("hidden");
                 renderPublicSettings();
                 renderPublicServices();
                 renderPublicPromos();
+                showToast("No se pudo conectar con Firebase; se muestran datos predeterminados.", "error");
             }
         }
 
@@ -1157,19 +1113,21 @@
 
             // Modal Login Admin
             const loginModal = document.getElementById("admin-login-modal");
-            const pinInput = document.getElementById("admin-pin-input");
+            const emailInput = document.getElementById("admin-email-input");
+            const passwordInput = document.getElementById("admin-password-input");
             const loginError = document.getElementById("login-error-msg");
 
             function openLoginModal() {
-                if (!db || !currentUser) {
+                if (!db || !auth) {
                     return showToast("El panel de administración todavía no está conectado.", "error");
                 }
                 toggleSidebar(true);
                 loginError.classList.add("hidden");
-                pinInput.value = "";
+                emailInput.value = "";
+                passwordInput.value = "";
                 loginModal.classList.remove("hidden");
                 loginModal.classList.add("flex");
-                setTimeout(() => pinInput.focus(), 100);
+                setTimeout(() => emailInput.focus(), 100);
             }
 
             document.getElementById("open-admin-login-btn").addEventListener("click", openLoginModal);
@@ -1179,25 +1137,52 @@
                 loginModal.classList.remove("flex");
             });
 
-            document.getElementById("admin-login-form").addEventListener("submit", (e) => {
+            document.getElementById("admin-login-form").addEventListener("submit", async (e) => {
                 e.preventDefault();
-                const enteredPin = pinInput.value.trim();
-                const expectedPin = currentSettings.adminPin || "4444";
+                loginError.classList.add("hidden");
+                try {
+                    const credential = await signInWithEmailAndPassword(
+                        auth,
+                        emailInput.value.trim(),
+                        passwordInput.value
+                    );
+                    if (credential.user.uid !== ADMIN_UID) {
+                        await signOut(auth);
+                        loginError.textContent = "Esta cuenta no tiene acceso de administrador.";
+                        loginError.classList.remove("hidden");
+                        return;
+                    }
 
-                if (enteredPin === expectedPin) {
+                    currentUser = credential.user;
+                    await initializeAdminData();
                     loginModal.classList.add("hidden");
                     loginModal.classList.remove("flex");
                     document.getElementById("public-view").classList.add("hidden");
                     document.getElementById("admin-dashboard-view").classList.remove("hidden");
                     window.scrollTo(0, 0);
                     showToast("Bienvenido al Panel de Control");
-                } else {
+                } catch (error) {
+                    console.error("Error iniciando sesión en el panel:", error);
+                    try {
+                        if (auth) await signOut(auth);
+                    } catch (signOutError) {
+                        console.error("Error cerrando una sesión fallida:", signOutError);
+                    }
+                    currentUser = null;
+                    loginError.textContent = "No se pudo iniciar sesión. Verificá tus datos y las reglas de Firestore.";
                     loginError.classList.remove("hidden");
                 }
             });
 
             // Volver a la vista pública
-            document.getElementById("back-to-site-btn").addEventListener("click", () => {
+            document.getElementById("back-to-site-btn").addEventListener("click", async () => {
+                try {
+                    if (auth) await signOut(auth);
+                } catch (error) {
+                    console.error("Error cerrando sesión de administrador:", error);
+                    showToast("No se pudo cerrar la sesión.", "error");
+                }
+                currentUser = null;
                 document.getElementById("admin-dashboard-view").classList.add("hidden");
                 document.getElementById("public-view").classList.remove("hidden");
                 window.scrollTo(0, 0);
@@ -1274,7 +1259,6 @@
 
                 const updatedSettings = {
                     brandName: document.getElementById("cfg-brand-name").value.trim(),
-                    adminPin: document.getElementById("cfg-admin-pin").value.trim() || "4444",
                     whatsappNumber: document.getElementById("cfg-wa-number").value.trim(),
                     whatsappDisplay: document.getElementById("cfg-wa-display").value.trim(),
                     instagramUser: document.getElementById("cfg-ig-user").value.trim().replace(/^@/, ""),
@@ -1293,6 +1277,7 @@
 
             // Iniciar conexión en tiempo real
             initFirebaseRealtime();
+            if (window.location.hash === "#admin") openLoginModal();
         });
     </script>
 </body>
