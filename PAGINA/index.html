@@ -34,6 +34,30 @@
             }
         }
     </script>
+    <style>
+        #left-sidebar {
+            scrollbar-color: rgba(212, 175, 55, 0.26) transparent;
+            scrollbar-width: thin;
+        }
+
+        #left-sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #left-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #left-sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.38), rgba(180, 138, 62, 0.18));
+            border: 1px solid #131316;
+            border-radius: 999px;
+        }
+
+        #left-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+    </style>
 </head>
 <body class="bg-barber-dark text-zinc-100 font-sans antialiased selection:bg-barber-gold selection:text-black">
 
@@ -77,42 +101,48 @@
             <!-- =================================================================
                  PANEL LATERAL IZQUIERDO (UBICACIÓN, HORARIOS Y REDES DIRECTAS)
                  ================================================================= -->
-            <aside id="left-sidebar" class="fixed lg:sticky top-0 left-0 z-50 h-screen w-80 xl:w-96 bg-barber-sidebar border-r border-zinc-800/90 flex flex-col justify-between overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <aside id="left-sidebar" class="fixed lg:sticky top-0 left-0 z-50 h-screen w-80 xl:w-96 bg-gradient-to-b from-[#1a1a1e] via-barber-sidebar to-[#101012] border-r border-zinc-800/90 shadow-2xl shadow-black/40 ring-1 ring-white/5 flex flex-col justify-between overflow-y-auto overscroll-contain transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
 
                 <div class="p-6 space-y-6">
                     <!-- Logo y Marca -->
-                    <div class="text-center border-b border-zinc-800 pb-6">
-                        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-barber-gold/20 to-zinc-900 border border-barber-gold/50 flex items-center justify-center shadow-lg shadow-barber-gold/5">
-                            <svg class="w-8 h-8 text-barber-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
-                            </svg>
+                    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-800/80 to-zinc-950/80 p-4 shadow-xl shadow-black/20">
+                        <div class="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-barber-gold/10 blur-2xl"></div>
+                        <div class="relative flex items-center gap-3">
+                            <div class="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-barber-gold/20 to-zinc-900 border border-barber-gold/40 flex items-center justify-center shadow-lg shadow-barber-gold/10">
+                                <svg class="w-8 h-8 text-barber-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <h1 id="sidebar-brand-name" class="font-serif text-xl font-bold tracking-wide text-white">KND BARBERIA</h1>
+                                <p class="text-[10px] uppercase tracking-[0.2em] text-barber-gold mt-1">Barbería & Grooming</p>
+                            </div>
                         </div>
-                        <h1 id="sidebar-brand-name" class="font-serif text-2xl font-bold tracking-wider text-white">KND BARBERIA</h1>
-                        <p class="text-xs uppercase tracking-[0.25em] text-barber-gold mt-1">Barbería & Grooming</p>
                     </div>
 
                     <!-- Navegación Rápida -->
-                    <nav aria-label="Navegación principal" class="space-y-1">
-                        <a href="#inicio" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
-                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                    <nav aria-label="Navegación principal" class="space-y-1.5">
+                        <p class="px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">Explorá</p>
+                        <a href="#inicio" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-medium text-zinc-400 hover:text-barber-gold hover:bg-barber-gold/10 hover:border-barber-gold/20 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-barber-gold/70">
+                            <span class="w-2 h-2 rounded-full bg-zinc-600 transition-colors group-hover:bg-barber-gold"></span>
                             Inicio
                         </a>
-                        <a href="#promociones" id="nav-promos-link" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
-                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                        <a href="#promociones" id="nav-promos-link" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-medium text-zinc-400 hover:text-barber-gold hover:bg-barber-gold/10 hover:border-barber-gold/20 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-barber-gold/70">
+                            <span class="w-2 h-2 rounded-full bg-zinc-600 transition-colors group-hover:bg-barber-gold"></span>
                             Promociones
                         </a>
-                        <a href="#precios" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
-                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                        <a href="#precios" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-medium text-zinc-400 hover:text-barber-gold hover:bg-barber-gold/10 hover:border-barber-gold/20 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-barber-gold/70">
+                            <span class="w-2 h-2 rounded-full bg-zinc-600 transition-colors group-hover:bg-barber-gold"></span>
                             Lista de Precios
                         </a>
-                        <a href="#ubicacion" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-barber-gold hover:bg-zinc-800/60 transition">
-                            <span class="w-1.5 h-1.5 rounded-full bg-barber-gold"></span>
+                        <a href="#ubicacion" class="nav-link group flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent text-sm font-medium text-zinc-400 hover:text-barber-gold hover:bg-barber-gold/10 hover:border-barber-gold/20 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-barber-gold/70">
+                            <span class="w-2 h-2 rounded-full bg-zinc-600 transition-colors group-hover:bg-barber-gold"></span>
                             Dónde Estamos
                         </a>
                     </nav>
 
                     <!-- Sucursales y horarios -->
-                    <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-4">
+                    <div class="bg-gradient-to-br from-zinc-900/95 to-zinc-950/80 border border-white/5 rounded-2xl p-4 space-y-4 shadow-lg shadow-black/10">
                         <div class="flex items-start gap-3">
                             <div class="p-2 rounded-lg bg-barber-gold/10 text-barber-gold shrink-0 mt-0.5">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +182,7 @@
                 </div>
 
                 <!-- ETIQUETAS DIRECTAS DE WHATSAPP E INSTAGRAM + ACCESO ADMIN -->
-                <div class="p-6 pt-3 space-y-3 border-t border-zinc-800/80 bg-barber-sidebar">
+                <div class="p-6 pt-4 space-y-3 border-t border-white/5 bg-gradient-to-b from-transparent to-black/20">
                     <p class="text-[11px] uppercase tracking-widest text-zinc-400 text-center font-medium">Contacto Directo & Turnos</p>
 
                     <a id="sidebar-wa-btn" href="https://wa.me/message/MIWPGUSA6FKRB1" target="_blank" rel="noopener noreferrer"
