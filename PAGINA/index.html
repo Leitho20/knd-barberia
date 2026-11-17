@@ -229,15 +229,15 @@
 
                     <div class="max-w-4xl mx-auto relative z-10">
                         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-barber-gold/10 border border-barber-gold/30 text-barber-gold text-xs font-semibold uppercase tracking-widest mb-6">
-                            <span>Tradición & Estilo Moderno</span>
+                            <span id="hero-eyebrow">Tu barbería de barrio</span>
                         </div>
 
-                        <h2 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                            Tu mejor versión empieza con un <span class="text-barber-gold italic">buen corte.</span>
+                        <h2 id="hero-title" class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                            Pasá, sentate y salí con un buen corte.
                         </h2>
 
-                        <p class="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed">
-                            Combinamos técnicas clásicas de barbería con las tendencias actuales. Atención personalizada, toalla caliente, navaja tradicional y el mejor ambiente para que te relajes.
+                        <p id="hero-description" class="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed">
+                            Cortes y barba, buena onda y atención sin vueltas. Vení, ponete cómodo y salí prolijo.
                         </p>
 
                         <div class="mt-8 flex flex-wrap items-center gap-4">
@@ -556,7 +556,7 @@
                         </div>
                         <div class="sm:col-span-2 lg:col-span-3">
                             <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Descripción de la promoción</label>
-                            <input type="text" id="new-promo-desc" required placeholder="Ej: Corte degradé + perfilado de barba con toalla caliente."
+                            <input type="text" id="new-promo-desc" required placeholder="Ej: Corte degradé + perfilado de barba."
                                    class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
                         </div>
                         <div class="sm:col-span-2 lg:col-span-3 flex justify-end">
@@ -582,8 +582,29 @@
             <div id="tab-settings" class="admin-tab-content hidden">
                 <form id="settings-form" class="bg-barber-card border border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6">
                     <div>
-                        <h3 class="font-serif text-xl font-bold text-white">Información General, Horarios y Contacto</h3>
-                        <p class="text-xs text-zinc-400 mt-1">Al guardar, los enlaces de WhatsApp e Instagram y los horarios de la web se actualizarán al instante.</p>
+                        <h3 class="font-serif text-xl font-bold text-white">Textos, Horarios y Contacto</h3>
+                        <p class="text-xs text-zinc-400 mt-1">Al guardar, los textos de inicio, los enlaces y los horarios de la web se actualizarán al instante.</p>
+                    </div>
+
+                    <div class="border-b border-zinc-800 pb-6">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-barber-gold mb-4">Textos de inicio</h4>
+                        <div class="grid grid-cols-1 gap-5">
+                            <div>
+                                <label for="cfg-hero-eyebrow" class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Rótulo</label>
+                                <input type="text" id="cfg-hero-eyebrow" required
+                                       class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                            </div>
+                            <div>
+                                <label for="cfg-hero-title" class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Eslogan</label>
+                                <input type="text" id="cfg-hero-title" required
+                                       class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold">
+                            </div>
+                            <div>
+                                <label for="cfg-hero-description" class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Texto de presentación</label>
+                                <textarea id="cfg-hero-description" required rows="3"
+                                          class="w-full px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-barber-gold"></textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -670,6 +691,9 @@
 
         const DEFAULT_SETTINGS = {
             brandName: "KND BARBERIA",
+            heroEyebrow: "Tu barbería de barrio",
+            heroTitle: "Pasá, sentate y salí con un buen corte.",
+            heroDescription: "Cortes y barba, buena onda y atención sin vueltas. Vení, ponete cómodo y salí prolijo.",
             whatsappNumber: "5491135733876",
             whatsappDisplay: "+54 9 11 3573-3876",
             instagramUser: "knd_barberia",
@@ -742,6 +766,9 @@
             document.getElementById("mobile-brand-name").textContent = s.brandName;
             document.getElementById("sidebar-brand-name").textContent = s.brandName;
             document.getElementById("footer-brand-name").textContent = s.brandName;
+            document.getElementById("hero-eyebrow").textContent = s.heroEyebrow;
+            document.getElementById("hero-title").textContent = s.heroTitle;
+            document.getElementById("hero-description").textContent = s.heroDescription;
 
             document.getElementById("hours-weekdays").textContent = s.hoursWeekdays;
             document.getElementById("hours-saturday").textContent = s.hoursSaturday;
@@ -758,6 +785,9 @@
 
             // Rellenar también los inputs del formulario de configuración del admin
             document.getElementById("cfg-brand-name").value = s.brandName || "";
+            document.getElementById("cfg-hero-eyebrow").value = s.heroEyebrow || "";
+            document.getElementById("cfg-hero-title").value = s.heroTitle || "";
+            document.getElementById("cfg-hero-description").value = s.heroDescription || "";
             document.getElementById("cfg-wa-number").value = s.whatsappNumber || "";
             document.getElementById("cfg-wa-display").value = s.whatsappDisplay || "";
             document.getElementById("cfg-ig-user").value = s.instagramUser || "";
@@ -1294,6 +1324,9 @@
 
                 const updatedSettings = {
                     brandName: document.getElementById("cfg-brand-name").value.trim(),
+                    heroEyebrow: document.getElementById("cfg-hero-eyebrow").value.trim(),
+                    heroTitle: document.getElementById("cfg-hero-title").value.trim(),
+                    heroDescription: document.getElementById("cfg-hero-description").value.trim(),
                     whatsappNumber: document.getElementById("cfg-wa-number").value.trim(),
                     whatsappDisplay: document.getElementById("cfg-wa-display").value.trim(),
                     instagramUser: document.getElementById("cfg-ig-user").value.trim().replace(/^@/, ""),
@@ -1304,7 +1337,7 @@
 
                 try {
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'general'), updatedSettings);
-                    showToast("Horarios y redes actualizados");
+                    showToast("Textos y configuración actualizados");
                 } catch (err) {
                     showToast("Error al guardar la configuración", "error");
                 }
