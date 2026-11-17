@@ -524,7 +524,12 @@
 
                 <!-- Listado Editable de Servicios Existentes -->
                 <div class="space-y-4">
-                    <h3 class="font-serif text-xl font-bold text-white">Servicios Actuales (Editá y guardá los cambios)</h3>
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h3 class="font-serif text-xl font-bold text-white">Servicios Actuales (Editá y guardá los cambios)</h3>
+                        <button id="create-price-story-btn" type="button" class="px-4 py-2 rounded-xl bg-barber-gold hover:bg-barber-goldHover text-black text-xs font-bold transition">
+                            Crear historia de precios
+                        </button>
+                    </div>
                     <div id="admin-services-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Se llena dinámicamente -->
                     </div>
@@ -751,6 +756,213 @@
         function createWhatsAppLink(customMessage) {
             const cleanPhone = (currentSettings.whatsappNumber || "").replace(/\D/g, "");
             return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(customMessage)}`;
+        }
+
+        function fitCanvasText(ctx, text, x, y, maxWidth, fontFamily, fontWeight, fontSize, minFontSize, color, align = "left") {
+            let size = fontSize;
+            ctx.textAlign = align;
+            ctx.textBaseline = "middle";
+            do {
+                ctx.font = `${fontWeight} ${size}px ${fontFamily}`;
+                if (ctx.measureText(text).width <= maxWidth || size <= minFontSize) break;
+                size -= 2;
+            } while (size >= minFontSize);
+            ctx.fillStyle = color;
+            ctx.fillText(text, x, y, maxWidth);
+        }
+
+        function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+            const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+            const lines = [];
+            let line = "";
+
+            words.forEach(word => {
+                const candidate = line ? `${line} ${word}` : word;
+                if (line && ctx.measureText(candidate).width > maxWidth) {
+                    lines.push(line);
+                    line = word;
+                } else {
+                    line = candidate;
+                }
+            });
+            if (line) lines.push(line);
+
+            const visibleLines = lines.slice(0, maxLines);
+            if (lines.length > maxLines && visibleLines.length) {
+                let lastLine = visibleLines[visibleLines.length - 1];
+                while (lastLine && ctx.measureText(`${lastLine}…`).width > maxWidth) {
+                    lastLine = lastLine.slice(0, -1);
+                }
+                visibleLines[visibleLines.length - 1] = `${lastLine.trimEnd()}…`;
+            }
+
+            visibleLines.forEach((textLine, index) => ctx.fillText(textLine, x, y + index * lineHeight));
+            return y + visibleLines.length * lineHeight;
+        }
+
+        function createStoryCanvas() {
+            const canvas = document.createElement("canvas");
+            canvas.width = 1080;
+            canvas.height = 1920;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) throw new Error("No se pudo preparar la imagen.");
+
+            const background = ctx.createLinearGradient(0, 0, 1080, 1920);
+            background.addColorStop(0, "#111113");
+            background.addColorStop(0.55, "#1a1916");
+            background.addColorStop(1, "#0b0b0d");
+            ctx.fillStyle = background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "rgba(212, 175, 55, 0.08)";
+            ctx.beginPath();
+            ctx.arc(1000, 260, 260, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(65, 1580, 240, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "#d4af37";
+            ctx.fillRect(82, 100, 10, 130);
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillStyle = "#f5f5f4";
+            ctx.font = "700 74px 'Playfair Display', serif";
+            ctx.fillText("KND", 120, 165);
+            ctx.fillStyle = "#d4af37";
+            ctx.font = "700 26px Inter, sans-serif";
+            ctx.fillText("BARBERÍA", 124, 210);
+            ctx.fillStyle = "#d4af37";
+            ctx.font = "700 28px Inter, sans-serif";
+            ctx.fillText("KND BARBERÍA", 88, 355);
+            ctx.fillStyle = "rgba(212, 175, 55, 0.65)";
+            ctx.fillRect(88, 382, 904, 2);
+
+            return { canvas, ctx };
+        }
+
+        function drawStoryFooter(ctx, message) {
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#d4af37";
+            ctx.font = "700 30px Inter, sans-serif";
+            ctx.fillText(message, 540, 1710);
+            ctx.fillStyle = "#d4d4d8";
+            ctx.font = "500 24px Inter, sans-serif";
+            ctx.fillText(`WhatsApp ${currentSettings.whatsappDisplay || ""}`, 540, 1760);
+            ctx.fillStyle = "#a1a1aa";
+            ctx.font = "400 24px Inter, sans-serif";
+            ctx.fillText(`Instagram @${currentSettings.instagramUser || "knd_barberia"}`, 540, 1810);
+        }
+
+        function createPriceStoryCanvas() {
+            if (!currentServices.length) throw new Error("No hay precios para mostrar.");
+            const { canvas, ctx } = createStoryCanvas();
+            ctx.fillStyle = "#f5f5f4";
+            ctx.font = "700 62px 'Playfair Display', serif";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText("Lista de precios", 88, 505);
+            ctx.fillStyle = "#a1a1aa";
+            ctx.font = "400 30px Inter, sans-serif";
+            ctx.fillText("Servicios de barbería", 88, 558);
+
+            const areaTop = 635;
+            const areaHeight = 950;
+            const rowHeight = Math.min(132, areaHeight / currentServices.length);
+            const tableHeight = rowHeight * currentServices.length;
+            const tableTop = areaTop + (areaHeight - tableHeight) / 2;
+            ctx.fillStyle = "rgba(24, 24, 27, 0.92)";
+            ctx.fillRect(70, tableTop - 14, 940, tableHeight + 28);
+
+            currentServices.forEach((service, index) => {
+                const centerY = tableTop + rowHeight * (index + 0.5);
+                if (index > 0) {
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.09)";
+                    ctx.fillRect(104, tableTop + rowHeight * index, 872, 1);
+                }
+                const textSize = Math.min(42, rowHeight * 0.36);
+                fitCanvasText(ctx, String(service.name || "Servicio"), 112, centerY, 560, "Inter, sans-serif", "600", textSize, 20, "#f5f5f4");
+                fitCanvasText(ctx, String(service.price || "Consultar"), 972, centerY, 330, "Inter, sans-serif", "700", textSize, 20, "#d4af37", "right");
+            });
+
+            drawStoryFooter(ctx, "¡Te esperamos!");
+            return canvas;
+        }
+
+        function createPromoStoryCanvas(promo) {
+            const { canvas, ctx } = createStoryCanvas();
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillStyle = "#d4af37";
+            ctx.font = "700 30px Inter, sans-serif";
+            ctx.fillText("PROMOCIÓN ESPECIAL", 88, 500);
+
+            ctx.fillStyle = "#f5f5f4";
+            ctx.font = "700 76px 'Playfair Display', serif";
+            const titleBottom = wrapCanvasText(ctx, promo.title || "Promo", 88, 610, 900, 92, 3);
+
+            const badgeTop = Math.max(900, titleBottom + 70);
+            ctx.fillStyle = "rgba(212, 175, 55, 0.13)";
+            ctx.fillRect(70, badgeTop, 940, 230);
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.65)";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(70, badgeTop, 940, 230);
+            fitCanvasText(ctx, String(promo.badge || "Consultanos"), 540, badgeTop + 115, 850, "Inter, sans-serif", "800", 94, 40, "#f5d46d", "center");
+
+            ctx.textAlign = "left";
+            ctx.fillStyle = "#d4d4d8";
+            ctx.font = "400 38px Inter, sans-serif";
+            const descriptionBottom = wrapCanvasText(ctx, promo.description || "", 88, badgeTop + 310, 900, 50, 4);
+
+            if (promo.days) {
+                ctx.fillStyle = "#d4af37";
+                ctx.font = "600 30px Inter, sans-serif";
+                wrapCanvasText(ctx, promo.days, 88, Math.max(badgeTop + 620, descriptionBottom + 65), 900, 42, 2);
+            }
+
+            drawStoryFooter(ctx, "Reservá por WhatsApp");
+            return canvas;
+        }
+
+        async function createAndShareStory(createCanvas, filename) {
+            try {
+                const canvas = createCanvas();
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+                if (!blob) throw new Error("No se pudo convertir la imagen.");
+                const safeFilename = `${filename.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, "")}-historia.png`;
+                let sharingFailed = false;
+
+                if (typeof File === "function" && typeof navigator.share === "function" && navigator.canShare) {
+                    const file = new File([blob], safeFilename, { type: "image/png" });
+                    if (navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({ files: [file], title: "Historia de KND Barbería" });
+                            showToast("Imagen lista para compartir");
+                            return;
+                        } catch (error) {
+                            if (error.name === "AbortError") return;
+                            console.error("Error compartiendo imagen:", error);
+                            sharingFailed = true;
+                        }
+                    }
+                }
+
+                const imageUrl = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = imageUrl;
+                link.download = safeFilename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(imageUrl), 10000);
+                showToast(sharingFailed
+                    ? "No se pudo compartir; la imagen quedó descargada."
+                    : "Imagen de historia descargada");
+            } catch (error) {
+                if (error.name === "AbortError") return;
+                console.error("Error creando imagen para historia:", error);
+                showToast("No se pudo crear la imagen de historia.", "error");
+            }
         }
 
         const WHATSAPP_CONTACT_LINK = "https://wa.me/message/MIWPGUSA6FKRB1";
@@ -987,15 +1199,28 @@
                     </div>
 
                     <div class="flex items-center justify-between pt-3 border-t border-zinc-800">
-                        <button type="button" class="toggle-promo-btn px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition">
-                            ${promo.active ? 'Pausar Promo' : 'Activar Promo'}
-                        </button>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="create-promo-story-btn px-3 py-1.5 rounded-lg bg-barber-gold hover:bg-barber-goldHover text-black text-xs font-semibold transition">
+                                Crear historia
+                            </button>
+                            <button type="button" class="toggle-promo-btn px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition">
+                                ${promo.active ? 'Pausar Promo' : 'Activar Promo'}
+                            </button>
+                        </div>
                         <button type="button" class="delete-promo-btn px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white text-xs font-semibold transition">
                             Eliminar
                         </button>
                     </div>
                 </div>
             `).join("");
+
+            container.querySelectorAll(".create-promo-story-btn").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    const card = e.target.closest("[data-promo-id]");
+                    const promo = currentPromos.find(item => item.id === card.dataset.promoId);
+                    if (promo) await createAndShareStory(() => createPromoStoryCanvas(promo), `knd-promo-${promo.title}`);
+                });
+            });
 
             container.querySelectorAll(".toggle-promo-btn").forEach(btn => {
                 btn.addEventListener("click", async (e) => {
@@ -1270,6 +1495,10 @@
                     tabContents.forEach(c => c.classList.add("hidden"));
                     document.getElementById(targetId).classList.remove("hidden");
                 });
+            });
+
+            document.getElementById("create-price-story-btn").addEventListener("click", () => {
+                createAndShareStory(createPriceStoryCanvas, "knd-precios");
             });
 
             // Agregar Nuevo Servicio
